@@ -6,6 +6,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 
+import analyticsRouter from './routes/analyticsRouter.js';
 import categoriesRouter from './routes/categoriesRouter.js';
 import authRouter from './routes/authRouter.js';
 import userRouter from './routes/usersRouter.js';
@@ -40,6 +41,8 @@ app.use(express.json());
 app.get('/', (req, res, next) => {
   res.json({ message: 'CORS is activated' });
 });
+
+app.use('/api/analytics', analyticsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);

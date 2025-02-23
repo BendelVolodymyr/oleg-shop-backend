@@ -1,23 +1,12 @@
 import { Category } from '../models/categoryModel.js';
 
-async function listCategories() {
-  const result = await Category.find();
-  return result;
-}
+const listCategories = () => Category.find();
 
-async function addCategory(body) {
-  const result = await Category.create(body);
-  return result;
-}
+const addCategory = body => Category.create(body);
 
-async function updateCategory(id, body) {
-  const result = await Category.findByIdAndUpdate(id, body, { new: true });
-  return result;
-}
+const updateCategory = (id, body) =>
+  Category.findByIdAndUpdate(id, body, { new: true });
 
-async function removeCategory(id) {
-  const result = await Category.findByIdAndDelete(id);
-  return result;
-}
+const removeCategory = id => Category.findByIdAndDelete(id);
 
-export { listCategories, addCategory, updateCategory, removeCategory };
+export default { listCategories, addCategory, updateCategory, removeCategory };
