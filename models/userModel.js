@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import Joi from 'joi';
-import { handleMongooseError } from '../middlewares/handleMongooseError.js';
+import { handleMongooseError } from '../helpers/handleMongooseError.js';
 
 const emailRegexp =
   /^(?:(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*)|(?:"(?:\\[\x00-\x7F]|[^\\"])*"))@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}|(?:\[(?:\d{1,3}\.){3}\d{1,3}\]))$/;
@@ -11,17 +11,22 @@ const emailRegexp =
 const userSchema = new Schema(
   {
     name: { type: String, required: true },
-    email: { type: String, match: emailRegexp, unique: true, required: true },
+    email: { type: String, match: emailRegexp, required: true, unique: true },
     password: {
       type: String,
       minlength: 6,
       required: true,
     },
+    favorite: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Product',
+      default: [],
+    },
   },
   { versionKey: false, timestamps: true }
 );
 
-export const registerSchema = Joi.object({
+const registerJoiSchema = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
@@ -34,10 +39,12 @@ export const registerSchema = Joi.object({
     }),
 });
 
-export const loginSchema = Joi.object({
+const loginJoiSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).max(12).required(),
 });
+
+export const validateUser = { loginJoiSchema, registerJoiSchema };
 
 userSchema.post('save', handleMongooseError);
 

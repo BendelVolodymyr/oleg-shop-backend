@@ -37,6 +37,15 @@ mongoose
 app.use(morgan('combined'));
 app.use(cors());
 app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+    inflate: true,
+    limit: '1mb',
+    parameterLimit: 5000,
+    type: 'application/x-www-form-urlencoded',
+  })
+);
 
 app.get('/', (req, res, next) => {
   res.json({ message: 'CORS is activated' });

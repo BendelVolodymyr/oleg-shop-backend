@@ -35,14 +35,15 @@ const loginUser = async (req, res, next) => {
   if (!resultPasswordCompare) throw HttpError(401, 'Password is invalid');
 
   const token = authService.generateToken(user);
+  await authService.updateToken(user.id, token);
 
   res.status(200).json({ token, user: { email: user.email, name: user.name } });
 };
 
 const logoutUser = async (req, res, next) => {
   const { _id } = req.user;
-  await logoutUser(_id);
-  res.status(204).end();
+  await authService.updateToken(_id, '');
+  res.status(200).json({ message: 'Logout success' });
 };
 
 export default {

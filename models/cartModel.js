@@ -5,14 +5,14 @@ import { handleMongooseError } from '../middlewares/handleMongooseError.js';
 const cartSchema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     }, // Посилання на користувача
     items: [
       {
         productId: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: Schema.Types.ObjectId,
           ref: 'Product',
           required: true,
         }, // Посилання на продукт

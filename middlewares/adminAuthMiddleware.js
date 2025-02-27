@@ -3,11 +3,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import HttpError from '../helpers/HttpError.js';
-import authService from '../services/authService.js';
+import adminService from '../services/adminService.js';
 
-const SECRET_KEY = process.env.JWT_SECRET;
+const SECRET_KEY_ADMIN = process.env.JWT_SECRET_ADMIN;
 
-export const authMiddleware = async (req, res, next) => {
+export const adminAuthMiddleware = async (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -21,18 +21,23 @@ export const authMiddleware = async (req, res, next) => {
       HttpError(401, 'Not authorized: Invalid Authorization header format')
     );
   }
+
   const token = match[1];
 
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
+    const decoded = jwt.verify(token, SECRET_KEY_ADMIN);
 
-    const user = await authService.controlId(decoded.id);
-    if (!user) {
-      next(HttpError(401, 'Invalid user'));
+    const admin = await adminService.controlId(decoded.id);
+    if (!admin) {
+      return next(HttpError(401, 'Invalid user'));
     }
 
-    if (!user.token || user.token != token) {
-      next(HttpError(401, 'Invalid token'));
+    if (!admin.token || admin.token != token) {
+      return next(HttpError(401, 'Invalid token'));
+    }
+
+    if (admin.role !== 'admin') {
+      return next(HttpError(403, 'Access denied: Admin only'));
     }
 
     req.user = decoded;
@@ -41,5 +46,3 @@ export const authMiddleware = async (req, res, next) => {
     return next(HttpError(401, 'Invalid token'));
   }
 };
-
-/// need testing

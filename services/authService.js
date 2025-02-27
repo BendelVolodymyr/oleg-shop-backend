@@ -7,6 +7,7 @@ dotenv.config();
 const SECRET_KEY = process.env.JWT_SECRET;
 
 import { User } from '../models/userModel.js';
+import HttpError from '../helpers/HttpError.js';
 
 const generateToken = user => {
   const payload = { id: user._id };
@@ -29,6 +30,8 @@ const registerAuth = async ({ name, email, password }) => {
   return await User.create({ name, email, password: hashPassword });
 };
 
+const updateToken = (id, token) => User.findByIdAndUpdate(id, { token });
+
 const logoutUser = _id => User.findByIdAndUpdate(_id, { token: null });
 // const loginAuth = body => User.;
 
@@ -38,4 +41,5 @@ export default {
   generateToken,
   passwordCompare,
   controlId,
+  updateToken,
 };

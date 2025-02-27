@@ -1,11 +1,11 @@
-import mongoose, { model, Schema } from 'mongoose';
-import { handleMongooseError } from '../middlewares/handleMongooseError.js';
+import { model, Schema } from 'mongoose';
+import { handleMongooseError } from '../helpers/handleMongooseError.js';
 
 const userAnalyticsSchema = new Schema(
   {
     timestamp: { type: Date, default: Date.now },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },

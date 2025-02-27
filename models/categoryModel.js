@@ -1,15 +1,18 @@
 import Joi from 'joi';
 import { Schema, model } from 'mongoose';
-import { handleMongooseError } from '../middlewares/handleMongooseError.js';
+import { handleMongooseError } from '../helpers/handleMongooseError.js';
 
 const categorySchema = new Schema(
   {
     name: {
       type: String,
+      trim: true,
       required: true,
+      unique: true,
     },
     description: {
       type: String,
+      trim: true,
       required: true,
     },
   },

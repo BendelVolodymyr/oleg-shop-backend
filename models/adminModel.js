@@ -7,6 +7,7 @@ const adminSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ['admin', 'manager'], default: 'manager' },
+    token: { type: String, default: '' },
   },
   { versionKey: false, timestamps: true }
 );
@@ -15,7 +16,7 @@ const joiAdminSchema = Joi.object({
   adminName: Joi.string().min(3).max(50).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).max(50).required(),
-  role: Joi.string().valid('admin', 'user').default('user'),
+  role: Joi.string().valid('admin', 'manager').required(),
 });
 
 export const validateAdmin = { joiAdminSchema };
