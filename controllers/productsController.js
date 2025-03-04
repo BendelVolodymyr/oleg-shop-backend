@@ -11,18 +11,30 @@ const getAllProduct = async (req, res, next) => {
 };
 
 const createNewPRoduct = async (req, res, next) => {
-  const { body, user } = req;
+  const { body, user, movedFiles } = req;
+  const { name, description, price, category } = body;
 
-  const { name, description, price, category, images } = body;
-
-  if (!name || !description || !price || !category || !images)
+  if (!name || !description || !price || !category)
     throw HttpError(400, 'All required fields must be provided');
-  const product = { ...body, adminName: user.adminName, role: user.role };
 
-  console.log(product);
+  // const imageUrls =
+  //   movedFiles?.map(file => `/public/product/${file.filename}`) || []; це для звичайного переміщення фото в бекенді, зберігаємо шлях (бекенд додамо нафронті)
+
+  const imageUrls = movedFiles?.map(file => file.url) || []; // Це переміщення на cloudinary, зберігаємо повністю посилання
+
+  const product = {
+    ...body,
+    images: imageUrls,
+    adminName: user.adminName,
+    role: user.role,
+  };
 
   const newProduct = await productService.addNewProduct(product);
-  res.send(newProduct);
+
+  res.status(201).json({
+    message: 'Product created successfully',
+    product: newProduct,
+  });
 };
 
 export default {

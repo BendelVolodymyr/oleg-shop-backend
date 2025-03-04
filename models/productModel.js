@@ -6,7 +6,6 @@ const productSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      unique: true,
     },
     description: {
       type: String,
@@ -16,16 +15,16 @@ const productSchema = new Schema(
     price: {
       type: Number,
       required: true,
-      trim: true,
+      min: 0,
     },
     category: {
       type: Schema.Types.ObjectId,
-      ref: 'Category', // Якщо є окрема колекція категорій
+      ref: 'Category',
       required: true,
     },
     images: {
       type: [String],
-      required: true,
+      default: [],
     },
     adminName: { type: String, trim: true },
     role: { type: String, trim: true },
@@ -35,5 +34,4 @@ const productSchema = new Schema(
     timestamps: true,
   }
 );
-
 export const Product = model('Product', productSchema);
