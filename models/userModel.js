@@ -10,12 +10,19 @@ const emailRegexp =
 
 const userSchema = new Schema(
   {
-    name: { type: String, required: true },
     email: { type: String, match: emailRegexp, required: true, unique: true },
     password: {
       type: String,
       minlength: 6,
       required: true,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+      default: '',
     },
     favorite: {
       type: [Schema.Types.ObjectId],
@@ -27,7 +34,6 @@ const userSchema = new Schema(
 );
 
 const registerJoiSchema = Joi.object({
-  name: Joi.string().required(),
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
   registrationMethod: Joi.string()
@@ -39,12 +45,20 @@ const registerJoiSchema = Joi.object({
     }),
 });
 
+const verifyJoiSchema = Joi.object({
+  email: Joi.string().pattern(emailRegexp).required(),
+});
+
 const loginJoiSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).max(12).required(),
 });
 
-export const validateUser = { loginJoiSchema, registerJoiSchema };
+export const validateUser = {
+  loginJoiSchema,
+  registerJoiSchema,
+  verifyJoiSchema,
+};
 
 userSchema.post('save', handleMongooseError);
 

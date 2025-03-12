@@ -20,7 +20,7 @@ const multerConfig = multer.diskStorage({
       .name.replace(/\s+/g, '-'); // Очищення пробілів
     const customName = req.body.customFileName || originalName; // Використовуємо кастомне ім'я або оригінальне
     const extension = path.extname(file.originalname); // Розширення файлу
-    const uniqueId = uuidv4(); // Генерація унікального ідентифікатора за допомогою uuidv4
+    const uniqueId = uuidv4();
     const finalFileName = `${uniqueId}${extension}`; // Формуємо фінальне ім'я файлу, яке буде з UUID
     cb(null, finalFileName); // Використовуємо нове ім'я файлу
   },

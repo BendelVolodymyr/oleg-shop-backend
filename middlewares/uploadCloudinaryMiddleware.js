@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
-
 import fs from 'fs';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -29,12 +28,14 @@ const uploadCloudinaryMiddleware = async (req, res, next) => {
     fs.mkdirSync(directoryPath, { recursive: true });
   }
 
+  const folderType = req.body.folderType || 'product';
+
   req.movedFiles = [];
 
   for (const file of req.files) {
     const filePath = path.join(directoryPath, file.filename);
     const result = await cloudinary.uploader.upload(filePath, {
-      folder: 'product',
+      folder: folderType,
     });
 
     const url = cloudinary.url(result.public_id, {
