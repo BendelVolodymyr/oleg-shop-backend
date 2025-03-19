@@ -5,13 +5,19 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET;
+const JWT_REFRESH_KEY = process.env.JWT_REFRESH;
 
 import { User } from '../models/userModel.js';
 import HttpError from '../helpers/HttpError.js';
 
-const generateToken = user => {
+const accessToken = user => {
   const payload = { id: user._id };
   return jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: '4h' });
+};
+
+const refreshToken = user => {
+  const payload = { id: user._id };
+  return jwt.sign(payload, JWT_REFRESH_KEY, { expiresIn: '30d' });
 };
 
 const generateCode = () => uuidv4();
@@ -42,7 +48,12 @@ const registerAuth = async ({ email, password, verificationCode }) => {
   });
 };
 
-const updateToken = (id, token) => User.findByIdAndUpdate(id, { token });
+const updateToken = async (id, accessToken, refreshToken) =>
+  await User.findByIdAndUpdate(id, { accessToken, refreshToken });
+
+const updateRefreshToken = async (id, refreshToken) => {
+  await User.findByIdAndUpdate(id, { token: accessToken, refreshToken });
+};
 
 const logoutUser = _id => User.findByIdAndUpdate(_id, { token: null });
 // const loginAuth = body => User.;
@@ -52,9 +63,11 @@ export default {
   registerAuth,
   controlEmail,
   controlVerifyCode,
-  generateToken,
+  accessToken,
+  refreshToken,
   passwordCompare,
   controlId,
   updateToken,
+  updateRefreshToken,
   generateCode,
 };

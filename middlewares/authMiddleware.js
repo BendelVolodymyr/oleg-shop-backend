@@ -31,11 +31,11 @@ export const authMiddleware = async (req, res, next) => {
       next(HttpError(401, 'Invalid user'));
     }
 
-    if (!user.token || user.token != token) {
+    if (!user.accessToken || user.accessToken != token) {
       next(HttpError(401, 'Invalid token'));
     }
 
-    req.user = decoded;
+    req.user = { ...decoded, email: user.email };
     return next();
   } catch (error) {
     return next(HttpError(401, 'Invalid token'));

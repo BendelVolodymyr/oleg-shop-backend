@@ -32,7 +32,6 @@ const loginAdmin = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   const { id } = req.user;
-  console.log(req.user);
 
   await adminService.updateToken(id, '');
   res.status(200).json({ message: 'Logout success' });

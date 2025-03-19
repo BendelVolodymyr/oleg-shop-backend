@@ -38,7 +38,7 @@ const productSchema = new Schema(
     },
     variants: [
       {
-        sku: { type: String, required: true, unique: true },
+        sku: { type: String, required: true }, // Видалено `unique`, щоб уникнути конфліктів
         color: { type: String, trim: true },
         size: { type: String, trim: true },
         stock: { type: Number, default: 0, min: 0 },
@@ -54,17 +54,18 @@ const productSchema = new Schema(
       enum: ['in_stock', 'out_of_stock', 'pre_order'],
       default: 'in_stock',
     },
-    adminName: { type: String, trim: true },
-    role: { type: String, trim: true },
-    metaTitle: {
-      type: String, // Мета-заголовок
-      trim: true,
-      default: '',
-    },
-    metaDescription: {
-      type: String, // Мета-опис
-      trim: true,
-      default: '',
+    adminName: { type: String, trim: true, default: null },
+    role: { type: String, trim: true, default: null },
+    seo: {
+      metaTitle: { type: String, trim: true, default: '', maxlength: 60 }, // Обмеження довжини
+      metaDescription: {
+        type: String,
+        trim: true,
+        default: '',
+        maxlength: 160,
+      },
+      metaKeywords: { type: [String], default: [] },
+      metaH1: { type: String, trim: true, default: '', maxlength: 70 },
     },
   },
   {
@@ -73,4 +74,6 @@ const productSchema = new Schema(
   }
 );
 
-export const Product = model('Product', productSchema);
+const Product = model('Product', productSchema);
+
+export default { Product };

@@ -29,6 +29,8 @@ const userSchema = new Schema(
       ref: 'Product',
       default: [],
     },
+    accessToken: { type: String, default: '' },
+    refreshToken: { type: String, default: '' },
   },
   { versionKey: false, timestamps: true }
 );

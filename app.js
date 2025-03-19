@@ -4,6 +4,7 @@ dotenv.config();
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 
@@ -45,6 +46,7 @@ mongoose
 app.use(morgan('combined'));
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static('public'));
 app.use(
   express.urlencoded({
