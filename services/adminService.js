@@ -4,18 +4,49 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const SECRET_KEY_ADMIN = process.env.JWT_SECRET_ADMIN;
+const JWT_SECRET_ADMIN_KEY = process.env.JWT_SECRET_ADMIN;
+const JWT_REFRESH_ADMIN_KEY = process.env.JWT_REFRESH_ADMIN;
 
 import { Admin } from '../models/adminModel.js';
 import HttpError from '../helpers/HttpError.js';
 
-const generateToken = admin => {
+const helpersServices = {
+  async createHashToken(tokenRef, salt = 10) {
+    return await bcrypt.hash(tokenRef, salt);
+  },
+};
+
+const verifyRefreshToken = async token => {
+  const decoded = jwt.verify(token, JWT_REFRESH_ADMIN_KEY);
+
+  const admin = await Admin.findById(decoded.id);
+
+  if (!admin || !admin.refreshToken)
+    throw HttpError(401, 'User not found or refresh token is missing');
+
+  const isMatch = await bcrypt.compare(token, admin.refreshToken);
+
+  if (!isMatch) throw HttpError(401, 'Refresh token does not match');
+
+  return admin;
+};
+
+const createAccessToken = admin => {
   const payload = {
     id: admin._id,
     role: admin.role,
     adminName: admin.adminName,
   };
-  return jwt.sign(payload, SECRET_KEY_ADMIN, { expiresIn: '4h' });
+  return jwt.sign(payload, JWT_SECRET_ADMIN_KEY, { expiresIn: '4h' });
+};
+
+const createRefreshToken = admin => {
+  const payload = {
+    id: admin._id,
+    role: admin.role,
+    adminName: admin.adminName,
+  };
+  return jwt.sign(payload, JWT_REFRESH_ADMIN_KEY, { expiresIn: '30d' });
 };
 
 const passwordCompare = async (password, userPassword) =>
@@ -40,15 +71,30 @@ const registerAdmin = async ({ adminName, email, password, role }) => {
   });
 };
 
-const updateToken = (id, token) => Admin.findByIdAndUpdate(id, { token });
+const updateTokens = async (id, tokenAcs, tokenRef) => {
+  if (!id || !tokenAcs || !tokenRef)
+    throw HttpError(
+      400,
+      'Missing required parameters: id, accessToken, or refreshToken'
+    );
+
+  const hashToken = await helpersServices.createHashToken(tokenRef, 10);
+
+  await Admin.findByIdAndUpdate(id, {
+    accessToken: tokenAcs,
+    refreshToken: hashToken,
+  });
+};
 
 const logoutAdmin = _id => Admin.findByIdAndUpdate(_id, { token: null });
 
 export default {
+  verifyRefreshToken,
   registerAdmin,
   controlEmail,
-  generateToken,
+  createAccessToken,
+  createRefreshToken,
   passwordCompare,
   controlId,
-  updateToken,
+  updateTokens,
 };

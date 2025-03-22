@@ -3,6 +3,7 @@ import HttpError from '../helpers/HttpError.js';
 import sendEmail from '../helpers/sendEmail.js';
 import authService from '../services/authService.js';
 import analyticsService from '../services/analyticsService.js';
+import { setUserPreferencesCookie } from '../helpers/cookie.js';
 
 const registerUser = async (req, res) => {
   const { email, password, registrationMethod } = req.body;
@@ -36,13 +37,14 @@ const verifyEmail = async (req, res) => {
   if (!user) throw HttpError(401, 'Verification code is not valid');
   await authService.updateUseVerify(user._id);
 
-  const accessToken = authService.accessToken(user);
-  const refreshToken = authService.refreshToken(user);
-  await authService.updateToken(user._id, accessToken, refreshToken);
+  const tokenAcs = authService.createAccessToken(user);
+  const tokenRef = authService.createRefreshToken(user);
+  await authService.updateTokens(user._id, tokenAcs, tokenRef);
+
+  setUserPreferencesCookie(res, tokenRef);
 
   res.status(200).json({
-    accessToken,
-    refreshToken,
+    accessToken: tokenAcs,
     message: 'Email verification success',
   });
 };
@@ -74,33 +76,48 @@ const loginUser = async (req, res) => {
   );
   if (!resultPasswordCompare) throw HttpError(401, 'Password is invalid');
 
-  const accessToken = authService.accessToken(user);
-  const refreshToken = authService.refreshToken(user);
-  await authService.updateToken(user.id, accessToken, refreshToken);
+  const tokenAcs = authService.createAccessToken(user);
+  const tokenRef = authService.createRefreshToken(user);
+  await authService.updateTokens(user._id, tokenAcs, tokenRef);
 
-  res.cookie('refreshToken', refreshToken, {
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 днів
-    httpOnly: true, // Забороняє доступ до cookie через JavaScript
-    secure: process.env.NODE_ENV === 'production', // Якщо в продакшн середовищі, використовувати secure cookies
-    sameSite: 'Strict', // Забороняє доступ з іншого домену (додатковий рівень захисту)
-  });
+  setUserPreferencesCookie(res, tokenRef);
 
   res.status(200).json({
-    accessToken,
+    accessToken: tokenAcs,
     user: { email: user.email, name: user.name },
+  });
+};
+
+const getRefresh = async (req, res) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) throw HttpError(401, 'Refresh token is missing');
+
+  const user = await authService.verifyRefreshToken(refreshToken);
+  if (!user) throw HttpError(401, 'Not authorized');
+
+  const newAccessToken = authService.createAccessToken(user);
+  await authService.updateTokens(user.id, newAccessToken, refreshToken);
+
+  setUserPreferencesCookie(res, refreshToken);
+
+  res.status(200).json({
+    accessToken: newAccessToken,
+    user: { email: user.email, name: user.name }, // в майбутньому імя
   });
 };
 
 const logoutUser = async (req, res) => {
   const { id } = req.user;
 
-  await authService.updateToken(id, '', '');
+  await authService.updateTokens(id, '', '');
 
   res.clearCookie('refreshToken');
   res.status(200).json({ message: 'Logout success' });
 };
 
 export default {
+  getRefresh: ctrlWrapper(getRefresh),
   logoutUser: ctrlWrapper(logoutUser),
   resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
   verifyEmail: ctrlWrapper(verifyEmail),

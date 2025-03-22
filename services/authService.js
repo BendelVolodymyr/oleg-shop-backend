@@ -10,12 +10,32 @@ const JWT_REFRESH_KEY = process.env.JWT_REFRESH;
 import { User } from '../models/userModel.js';
 import HttpError from '../helpers/HttpError.js';
 
-const accessToken = user => {
+const helpersServices = {
+  async createHashToken(tokenRef, salt = 10) {
+    return await bcrypt.hash(tokenRef, salt);
+  },
+};
+
+const verifyRefreshToken = async token => {
+  const decoded = jwt.verify(token, JWT_REFRESH_KEY);
+  const user = await User.findById(decoded.id);
+
+  if (!user || !user.refreshToken)
+    throw HttpError(401, 'User not found or refresh token is missing');
+
+  const isMatch = await bcrypt.compare(token, user.refreshToken);
+
+  if (!isMatch) throw HttpError(401, 'Refresh token does not match');
+
+  return user;
+};
+
+const createAccessToken = user => {
   const payload = { id: user._id };
   return jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: '4h' });
 };
 
-const refreshToken = user => {
+const createRefreshToken = user => {
   const payload = { id: user._id };
   return jwt.sign(payload, JWT_REFRESH_KEY, { expiresIn: '30d' });
 };
@@ -48,26 +68,37 @@ const registerAuth = async ({ email, password, verificationCode }) => {
   });
 };
 
-const updateToken = async (id, accessToken, refreshToken) =>
-  await User.findByIdAndUpdate(id, { accessToken, refreshToken });
+const updateTokens = async (id, tokenAcs, tokenRef) => {
+  if (!id || !tokenAcs || !tokenRef)
+    throw HttpError(
+      400,
+      'Missing required parameters: id, accessToken, or refreshToken'
+    );
 
-const updateRefreshToken = async (id, refreshToken) => {
-  await User.findByIdAndUpdate(id, { token: accessToken, refreshToken });
+  const hashToken = await helpersServices.createHashToken(tokenRef, 10);
+
+  await User.findByIdAndUpdate(id, {
+    accessToken: tokenAcs,
+    refreshToken: hashToken,
+  });
 };
 
+const updateRefreshToken = async (id, refreshToken) =>
+  await User.findByIdAndUpdate(id, { refreshToken });
+
 const logoutUser = _id => User.findByIdAndUpdate(_id, { token: null });
-// const loginAuth = body => User.;
 
 export default {
+  verifyRefreshToken,
   updateUseVerify,
   registerAuth,
   controlEmail,
   controlVerifyCode,
-  accessToken,
-  refreshToken,
+  createAccessToken,
+  createRefreshToken,
   passwordCompare,
   controlId,
-  updateToken,
+  updateTokens,
   updateRefreshToken,
   generateCode,
 };

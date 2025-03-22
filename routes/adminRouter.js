@@ -21,5 +21,7 @@ adminRouter.post(
   validateBody(validateAdmin.joiAdminSchema),
   adminController.loginAdmin
 );
-adminRouter.post('/logout', adminAuthMiddleware, adminController.logout);
+adminRouter.get('/refresh', adminController.getRefresh);
+adminRouter.post('/logout', adminAuthMiddleware, adminController.logoutAdmin);
+
 export default adminRouter;

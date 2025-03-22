@@ -21,6 +21,7 @@ import paymentRouter from './routes/paymentsRouter.js';
 import reviewsRouter from './routes/reviewsRouter.js';
 import shippingRouter from './routes/shippingRouter.js';
 import adminRouter from './routes/adminRouter.js';
+import bannerRouter from './routes/bannerRouter.js';
 
 import socketService from './services/socket.js';
 
@@ -72,6 +73,7 @@ app.use('/api/orders', orderRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/shipping', shippingRouter);
+app.use('/api/banners', bannerRouter);
 
 setupSwagger(app);
 

@@ -23,6 +23,7 @@ authRouter.post(
   validateBody(validateUser.verifyJoiSchema),
   authController.resendVerifyEmail
 );
+authRouter.get('/refresh', authController.getRefresh);
 authRouter.post('/logout', authMiddleware, authController.logoutUser);
 
 export default authRouter;

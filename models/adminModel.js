@@ -7,7 +7,8 @@ const adminSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ['admin', 'manager'], default: 'manager' },
-    token: { type: String, default: '' },
+    accessToken: { type: String, default: '' },
+    refreshToken: { type: String, default: '' },
   },
   { versionKey: false, timestamps: true }
 );
