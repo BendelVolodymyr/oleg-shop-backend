@@ -1,9 +1,9 @@
 import express from 'express';
 
 import productsController from '../controllers/productsController.js';
-import { adminAuthMiddleware } from '../middlewares/AdminAuthMiddleware.js';
+import { adminAuthMiddleware } from '../middlewares/adminAuthMiddleware.js';
 import uploadMiddleware from '../middlewares/uploadMiddleware.js';
-import uploadCloudinaryMiddleware from '../middlewares/uploadCloudinaryMiddleware.js';
+import cloudinaryMiddleware from '../middlewares/cloudinaryMiddleware.js';
 
 const productRouter = express.Router();
 
@@ -12,7 +12,7 @@ productRouter.post(
   '/create',
   adminAuthMiddleware,
   uploadMiddleware.upload.array('images', 5),
-  uploadCloudinaryMiddleware.uploadCloudinaryMiddleware,
+  cloudinaryMiddleware.uploadCloudinaryMiddleware,
   productsController.createNewPRoduct
 );
 

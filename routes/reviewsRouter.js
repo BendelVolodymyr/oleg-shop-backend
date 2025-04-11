@@ -3,8 +3,8 @@ import express from 'express';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 import reviewsControllers from '../controllers/reviewsControllers.js';
 import uploadMiddleware from '../middlewares/uploadMiddleware.js';
-import uploadCloudinaryMiddleware from '../middlewares/uploadCloudinaryMiddleware.js';
-import { adminAuthMiddleware } from '../middlewares/AdminAuthMiddleware.js';
+import cloudinaryMiddleware from '../middlewares/cloudinaryMiddleware.js';
+import { adminAuthMiddleware } from '../middlewares/adminAuthMiddleware.js';
 
 const reviewsRouter = express.Router();
 
@@ -14,7 +14,7 @@ reviewsRouter.post(
   authMiddleware,
   uploadMiddleware.upload.array('images', 2),
   reviewsControllers.typeReviews,
-  uploadCloudinaryMiddleware.uploadCloudinaryMiddleware,
+  cloudinaryMiddleware.uploadCloudinaryMiddleware,
   reviewsControllers.createReviewProduct
 );
 reviewsRouter.post(

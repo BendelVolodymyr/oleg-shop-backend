@@ -1,8 +1,8 @@
 import express from 'express';
 import categoriesController from '../controllers/categoriesController.js';
-import { adminAuthMiddleware } from '../middlewares/AdminAuthMiddleware.js';
+import { adminAuthMiddleware } from '../middlewares/adminAuthMiddleware.js';
 import uploadMiddleware from '../middlewares/uploadMiddleware.js';
-import uploadCloudinaryMiddleware from '../middlewares/uploadCloudinaryMiddleware.js';
+import cloudinaryMiddleware from '../middlewares/cloudinaryMiddleware.js';
 
 const categoriesRouter = express.Router();
 
@@ -13,7 +13,7 @@ categoriesRouter.post(
   adminAuthMiddleware,
   uploadMiddleware.upload.array('images', 5),
   categoriesController.typeCategories,
-  uploadCloudinaryMiddleware.uploadCloudinaryMiddleware,
+  cloudinaryMiddleware.uploadCloudinaryMiddleware,
   categoriesController.createCategories
 );
 
@@ -22,7 +22,7 @@ categoriesRouter.post(
   adminAuthMiddleware,
   uploadMiddleware.upload.array('images', 5),
   categoriesController.typeCategories,
-  uploadCloudinaryMiddleware.uploadCloudinaryMiddleware,
+  cloudinaryMiddleware.uploadCloudinaryMiddleware,
   categoriesController.createSubcategory
 );
 

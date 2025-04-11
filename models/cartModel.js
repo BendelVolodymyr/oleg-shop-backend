@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import Joi from 'joi';
-import { handleMongooseError } from '../middlewares/handleMongooseError.js';
+import { handleMongooseError } from '../helpers/handleMongooseError.js';
 
 const cartSchema = new Schema(
   {
@@ -8,19 +8,18 @@ const cartSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-    }, // Посилання на користувача
+    },
     items: [
       {
         productId: {
           type: Schema.Types.ObjectId,
           ref: 'Product',
           required: true,
-        }, // Посилання на продукт
-        quantity: { type: Number, required: true, min: 1 }, // Кількість товару
-        price: { type: Number, required: true }, // Ціна за одиницю
+        },
+        quantity: { type: Number, required: true, min: 1 },
+        price: { type: Number, required: true }, // Ціна береться з продукту
       },
     ],
-    totalPrice: { type: Number, required: true, default: 0 }, // Загальна сума
   },
   { versionKey: false, timestamps: true }
 );
@@ -32,6 +31,6 @@ export const newCartSchema = Joi.object({
   price: Joi.number().positive().required(), // Ціна має бути позитивною
 });
 
-userSchema.post('save', handleMongooseError);
+cartSchema.post('save', handleMongooseError);
 
 export const Cart = model('cart', cartSchema);

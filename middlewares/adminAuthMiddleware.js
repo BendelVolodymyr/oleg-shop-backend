@@ -29,10 +29,10 @@ export const adminAuthMiddleware = async (req, res, next) => {
 
     const admin = await adminService.controlId(decoded.id);
     if (!admin) {
-      return next(HttpError(401, 'Invalid user'));
+      return next(HttpError(401, 'Invalid admin'));
     }
 
-    if (!admin.token || admin.token != token) {
+    if (!admin.accessToken || admin.accessToken != token) {
       return next(HttpError(401, 'Invalid token'));
     }
 

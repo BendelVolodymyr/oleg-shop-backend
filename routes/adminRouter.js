@@ -4,7 +4,7 @@ import adminController from '../controllers/adminController.js';
 import validateBody from '../middlewares/validateBody.js';
 import { validateAdmin } from '../models/adminModel.js';
 
-import { adminAuthMiddleware } from '../middlewares/AdminAuthMiddleware.js';
+import { adminAuthMiddleware } from '../middlewares/adminAuthMiddleware.js';
 import { checkRole } from '../middlewares/roleMiddleware.js';
 
 const adminRouter = express.Router();
