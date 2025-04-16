@@ -94,11 +94,12 @@ const patchFileCloudinaryMiddleware = async (req, res, next) => {
     transformation: [
       { quality: 'auto', fetch_format: 'auto' },
       {
-        width: 300,
-        height: 150,
+        width: 500,
+        height: 300,
         crop: 'fill',
-        gravity: 'auto',
+        gravity: 'center',
       },
+      { format: 'webp' },
     ],
   });
 
@@ -114,7 +115,7 @@ const patchFileCloudinaryMiddleware = async (req, res, next) => {
   next();
 };
 
-const uploadFileCloudinaryMiddleware = async (req, res, next) => {
+const createFileCloudinaryMiddleware = async (req, res, next) => {
   if (!req.file) {
     return next();
   }
@@ -170,7 +171,7 @@ const deletesCloudinaryMiddleware = async (req, res) => {
 };
 
 export default {
-  uploadFileCloudinaryMiddleware: ctrlWrapper(uploadFileCloudinaryMiddleware),
+  createFileCloudinaryMiddleware: ctrlWrapper(createFileCloudinaryMiddleware),
   uploadCloudinaryMiddleware: ctrlWrapper(uploadCloudinaryMiddleware),
   deleteCloudinaryMiddleware: ctrlWrapper(deleteCloudinaryMiddleware),
   deletesCloudinaryMiddleware: ctrlWrapper(deletesCloudinaryMiddleware),

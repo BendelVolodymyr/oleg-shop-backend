@@ -81,7 +81,6 @@ const deleteBanner = async (req, res, next) => {
 
 const updateBanner = async (req, res) => {
   const bannerId = req.params.id;
-  console.log('controller', req.body);
 
   if (!bannerId) throw HttpError(400, 'Bad request: ID is required');
 

@@ -1,6 +1,33 @@
 import Joi from 'joi';
 import { Schema, model } from 'mongoose';
 
+const bannerFieldConfig = {
+  title: Joi.string().min(3).max(100),
+  description: Joi.string().min(3).max(500),
+  link: Joi.string().uri(),
+  startDate: Joi.date().iso(),
+  endDate: Joi.date().iso().greater(Joi.ref('startDate')),
+  isActive: Joi.boolean(),
+  altImg: Joi.string().allow(''),
+  urlImg: Joi.string().uri().allow(''),
+  urlId: Joi.string().trim().allow(''),
+  adminName: Joi.string().trim(),
+  role: Joi.string().trim(),
+  displayOrder: Joi.number().integer().min(1),
+  type: Joi.string().valid('promotion', 'advertisement', 'announcement'),
+  folderType: Joi.string().valid('banners'),
+};
+
+const makeSchema = (fields, requiredFields = []) => {
+  const shape = {};
+  for (const key in fields) {
+    shape[key] = requiredFields.includes(key)
+      ? fields[key].required()
+      : fields[key].optional();
+  }
+  return Joi.object(shape).min(1);
+};
+
 const bannerSchema = new Schema(
   {
     title: { type: String, required: true, unique: true },
@@ -20,25 +47,31 @@ const bannerSchema = new Schema(
   { versionKey: false }
 );
 
-const updateBannerSchema = Joi.object({
-  title: Joi.string().min(3).max(100).optional(),
-  description: Joi.string().min(3).max(500).optional(),
-  link: Joi.string().uri().optional(),
-  startDate: Joi.date().iso().optional(),
-  endDate: Joi.date().iso().greater(Joi.ref('startDate')).optional(),
-  isActive: Joi.boolean().optional(),
-  altImg: Joi.string().allow('').optional(),
-  urlImg: Joi.string().uri().allow('').optional(),
-  urlId: Joi.string().trim().allow('').optional(),
-  adminName: Joi.string().trim().optional(),
-  role: Joi.string().trim().optional(),
-  displayOrder: Joi.number().integer().min(1).optional(),
-  type: Joi.string()
-    .valid('promotion', 'advertisement', 'announcement')
-    .optional(),
-  folderType: Joi.string().valid('banners').optional(),
-}).min(1);
+const createBannerSchema = makeSchema(bannerFieldConfig, [
+  'title',
+  'description',
+  'link',
+  'startDate',
+  'endDate',
+  'isActive',
+  'type',
+]);
 
-export const joiBannerSchema = { updateBannerSchema };
+const preCloudinaryUpdateSchema = makeSchema(
+  // без полів, які додає Cloudinary
+  Object.fromEntries(
+    Object.entries(bannerFieldConfig).filter(
+      ([key]) => !['urlImg', 'urlId', 'folderType'].includes(key)
+    )
+  )
+);
+
+const updateBannerSchema = makeSchema(bannerFieldConfig);
+
+export const joiBannerSchema = {
+  createBannerSchema,
+  preCloudinaryUpdateSchema,
+  updateBannerSchema,
+};
 
 export const Banner = model('banner', bannerSchema);
