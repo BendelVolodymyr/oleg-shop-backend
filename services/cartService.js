@@ -1,10 +1,19 @@
-import { Cart } from '../models/cartModel';
+import cartModel from '../models/cartModel.js';
 
-const getCart = () => Cart.find();
+const findByCartAndUser = (cartId, userId) => {
+  return Promise.all([
+    cartModel.Cart.findOne({ cartId }),
+    cartModel.Cart.findOne({ userId }),
+  ]);
+};
 
-const addCart = body => Cart.create(body);
+const queryCart = query => cartModel.Cart.findOne(query);
+
+const getCart = () => cartModel.Cart.find();
+
+const addCart = body => cartModel.Cart.create(body);
 
 const updateCart = (id, body) =>
-  Cart.findByIdAndUpdate(id, body, { new: true });
+  cartModel.Cart.findByIdAndUpdate(id, body, { new: true });
 
-export default { getCart };
+export default { getCart, queryCart, addCart, updateCart, findByCartAndUser };

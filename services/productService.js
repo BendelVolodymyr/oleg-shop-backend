@@ -1,13 +1,13 @@
-import modelProduct from '../models/productModel.js';
+import productModel from '../models/productModel.js';
 
-const controlIdProduct = id => modelProduct.Product.findById(id);
+const controlIdProduct = id => productModel.Product.findById(id);
 
 const listAllProduct = (skip, limit) => {
-  return modelProduct.Product.find({}, '-createdAt -updatedAt')
+  return productModel.Product.find({}, '-createdAt -updatedAt')
     .skip(skip)
     .limit(limit);
 };
 
-const addNewProduct = body => modelProduct.Product.create(body);
+const addNewProduct = body => productModel.Product.create(body);
 
 export default { listAllProduct, addNewProduct, controlIdProduct };
