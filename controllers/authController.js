@@ -3,7 +3,9 @@ import HttpError from '../helpers/HttpError.js';
 import sendEmail from '../helpers/sendEmail.js';
 import authService from '../services/authService.js';
 import analyticsService from '../services/analyticsService.js';
+import cartService from '../services/cartService.js';
 import { setUserPreferencesCookie } from '../helpers/cookie.js';
+import mergeGuestCartMiddleware from '../middlewares/mergeGuestCartMiddleware.js';
 
 const registerUser = async (req, res) => {
   const { email, password, registrationMethod } = req.body;
@@ -79,6 +81,22 @@ const loginUser = async (req, res) => {
   const tokenAcs = authService.createAccessToken(user);
   const tokenRef = authService.createRefreshToken(user);
   await authService.updateTokens(user._id, tokenAcs, tokenRef);
+
+  const existingCart = await cartService.queryCart({ userId: user._id });
+
+  if (!existingCart) {
+    await cartService.addCart({
+      userId: user._id,
+      items: [],
+    });
+  }
+
+  const cartId = req.cookies?.cartId;
+
+  if (cartId) {
+    await cartService.mergeGuestCart(cartId, user._id);
+    res.clearCookie('cartId');
+  }
 
   setUserPreferencesCookie(res, tokenRef);
 

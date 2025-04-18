@@ -59,6 +59,8 @@ const addToCartSchema = Joi.object({
   }),
 });
 
+cartSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 cartSchema.pre('save', async function (next) {
   try {
     const total = await calculateTotalPrice(this.items);

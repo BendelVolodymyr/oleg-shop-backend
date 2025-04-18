@@ -8,7 +8,7 @@ const guestCartMiddleware = (req, res, next) => {
 
     res.cookie('cartId', cartId, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7,
+      maxAge: 1000 * 60 * 60 * 24 * 14,
       sameSite: 'lax',
       secure: NODE_ENV === 'production',
     });

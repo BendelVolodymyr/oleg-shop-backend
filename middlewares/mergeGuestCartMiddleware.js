@@ -17,6 +17,7 @@ const mergeGuestCartMiddleware = async (req, res, next) => {
     if (!userCart) {
       guestCart.userId = userId;
       guestCart.cartId = undefined;
+
       await guestCart.save();
     } else {
       guestCart.items.forEach(guestItem => {
